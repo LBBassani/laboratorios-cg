@@ -2,6 +2,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <stdio.h>
+#include <cmath>
 #define TAMANHO_JANELA 500
 
 //Pontos do triangulo
@@ -104,6 +105,11 @@ void motion(int x, int y){
 			pProjX = Dx / D;
 			pProjY = Dy / D;
 		}
+		
+		float  color_aux = hypot(pBx-fX,pBy-fY)/hypot(pBx-pProjX,pBy-pProjY);
+		gB = 1 - color_aux;
+		gR = (1 - hypot(pRx-pProjX,pRy-pProjY)/hypot(pRx-pGx,pRy-pGy) )*color_aux;
+		gG = (1 - hypot(pGx-pProjX,pGy-pProjY)/hypot(pRx-pGx,pRy-pGy) )*color_aux;
 			
 
     } else if (draggingPointR){
