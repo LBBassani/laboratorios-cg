@@ -86,6 +86,25 @@ void motion(int x, int y){
 		/**
 			COLOQUE SEU CODIGO AQUI
 		**/
+		// linha 1
+		float 	a_1 = pBy - fY,
+			b_1 = fX - pBx,
+			c_1 = -(pBx*fY - pBy*fX);
+		
+		// linha 2
+		float 	a_2 = pRy - pGy,
+			b_2 = pGx - pRy,
+			c_2 = -(pRx*pGy - pRy*pGx);
+		
+		// interseção
+		float 	D = a_1*b_2 - b_1*a_2,
+			Dx = c_1*b_2 - b_1*c_2,
+			Dy = a_1*c_2 - c_1*a_2;
+		if(D != 0){
+			pProjX = Dx / D;
+			pProjY = Dy / D;
+		}
+			
 
     } else if (draggingPointR){
         pRx = (GLfloat)x/TAMANHO_JANELA;
