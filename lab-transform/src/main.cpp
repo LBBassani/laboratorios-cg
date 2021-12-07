@@ -7,7 +7,7 @@
 #include "robo.h"
 #include "alvo.h"
 #define INC_KEY 1
-#define INC_KEYIDLE 0.01
+#define INC_KEYIDLE 0.02
 
 //Key status
 int keyStatus[256];
