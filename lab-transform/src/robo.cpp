@@ -145,12 +145,15 @@ void Robo::MoveEmX(GLfloat dx)
 	this->gThetaWheel -= (180*dx)/(M_PI*radiusWheel);
 }
 
-//Funcao auxiliar de rotacao
-void RotatePoint(GLfloat x, GLfloat y, GLfloat angle, GLfloat &xOut, GLfloat &yOut){
-
-}
-
 Tiro* Robo::Atira()
 {
+	int totalAngle = this->gTheta1 + this->gTheta2 + this->gTheta3;		// Angulo de saida do tiro é a soma dos angulos das hastes
+	int x = this->gX + paddleHeight*sin(-gTheta1*M_PI/180)
+			+ paddleHeight*sin(-(gTheta1 + gTheta2)*M_PI/180)
+			+ paddleHeight*sin(-totalAngle*M_PI/180);
+	int y = this->gY + baseHeight + paddleHeight*cos(-gTheta1*M_PI/180)
+			+ paddleHeight*cos(-(gTheta1 + gTheta2)*M_PI/180)
+			+ paddleHeight*cos(-totalAngle*M_PI/180);
 
+	return new Tiro(x, y, totalAngle);
 }
