@@ -1,0 +1,3 @@
+[submodule "trabalho-2d"]
+	path = trabalho-2d
+	url = git@github.com:LBBassani/cg-trabalho-2d.git
