@@ -7,11 +7,14 @@
 #include <iostream>
 
 #include <Utils.hpp>
+#include <glm/glm.hpp>
 
 #define windowSize 250
 
 int keyStatus[NUM_TECLAS_ASCII + 2 + 2 + 2];
 float x_luz, y_luz;
+glm::vec3 camera_position = {0.0f, 2.0f, 5.0f};
+glm::vec3 camera_target = {0.0f, 0.0f, 0.0f};
 
 void init( ) 
 {
@@ -101,7 +104,9 @@ void display(void)
 
     glLoadIdentity();
 
-    gluLookAt(0,2,5, 0,0,0, 0,1,0);
+    gluLookAt(  camera_position.x, camera_position.y, camera_position.z, 
+                camera_target.x, camera_target.y, camera_target.z,
+                0,1,0);
    
     GLfloat light_position[] = { 0.0f, 2.0f, 10.0, 1.0 };
     glPushMatrix();
@@ -122,6 +127,32 @@ void display(void)
 void idle(void){
     x_luz = keyStatus[MOUSE_X_COORD];
     y_luz = keyStatus[MOUSE_Y_COORD];
+
+    if(keyStatus[(int) 'w']) {
+        camera_position.y += 0.01f;
+        camera_target.y += 0.01f;
+    }
+    else if(keyStatus[(int) 's']) {
+        camera_position.y -= 0.01f;
+        camera_target.y -= 0.01f;
+    }
+
+    if(keyStatus[(int) 'a']) {
+        camera_position.x -= 0.01f;
+        camera_target.x -= 0.01f;
+    }
+    else if(keyStatus[(int) 'd']) {
+        camera_position.x += 0.01f;
+        camera_target.x += 0.01f;
+    }
+
+    if(keyStatus[(int) 'q']){
+        camera_position.z += 0.01f;
+        camera_target.z += 0.01f;
+    } else if (keyStatus[(int) 'e']){
+        camera_position.z -= 0.01f;
+        camera_target.z -= 0.01f;
+    }
 }
 
 static void keyPress(unsigned char key, int, int){
@@ -135,7 +166,7 @@ static void keyup(unsigned char key, int x, int y){
     keyStatus[(int)(tolower(key))] = 0;
 }
 
-static void mouseClick(int button, int state, int, int){
+static void mouseEvent(int button, int state, int, int){
     if(button == GLUT_LEFT_BUTTON){
         if(state == GLUT_DOWN) keyStatus[MOUSE_LEFT_CLICK] = 1; // On press
         else keyStatus[MOUSE_LEFT_CLICK] = 0;                   // On release
@@ -143,9 +174,21 @@ static void mouseClick(int button, int state, int, int){
         if(state == GLUT_DOWN) keyStatus[MOUSE_RIGHT_CLICK] = 1;  // On press
         else keyStatus[MOUSE_RIGHT_CLICK] = 0;                  // On release
     }
+
+    if(button == BUTTON_SCROLL_UP){
+        if(state == GLUT_DOWN) {
+            camera_position.z -= 0.2f;
+            camera_target.z -= 0.2f;
+        }
+    } else if(button == BUTTON_SCROLL_DOWN){
+        if(state == GLUT_DOWN) {
+            camera_position.z += 0.2f;
+            camera_target.z += 0.2f;
+        }
+    }
     #if defined TEST
-        //if(keyStatus[MOUSE_LEFT_CLICK]) std::cout << "Clique esquerdo!!" << std::endl;
-        //if(keyStatus[MOUSE_RIGHT_CLICK]) std::cout << "Clique direito!!" << std::endl;
+        // std::cout << button << ", " << state << std::endl;
+        // if(keyStatus[MOUSE_SCROLL_UP]) std::cout << "scroll pra cima!!" << std::endl;
     #endif
 }
 
@@ -176,7 +219,7 @@ int main(int argc, char** argv) {
     glutKeyboardFunc(keyPress);
     glutKeyboardUpFunc(keyup);
     glutPassiveMotionFunc(mouseMove);
-    glutMouseFunc(mouseClick);
+    glutMouseFunc(mouseEvent);
     glutMainLoop();
     return 0;
 }

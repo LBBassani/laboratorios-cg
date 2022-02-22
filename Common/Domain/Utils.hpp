@@ -7,9 +7,10 @@
 #define MOUSE_RIGHT_CLICK 257
 #define MOUSE_X_COORD 258
 #define MOUSE_Y_COORD 259
-#define PLAYER_X_COORD 260
-#define PLAYER_Y_COORD 261
 #define NUM_TECLAS_ASCII 256
+
+#define BUTTON_SCROLL_UP 3
+#define BUTTON_SCROLL_DOWN 4
 
 std::string first_numberstring(std::string const & str){
     char const* digits = "0123456789";
