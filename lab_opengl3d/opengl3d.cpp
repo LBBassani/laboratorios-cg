@@ -8,6 +8,7 @@
 
 #include <Utils.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define windowSize 250
 
@@ -15,6 +16,26 @@ int keyStatus[NUM_TECLAS_ASCII + 2 + 2 + 2];
 float x_luz, y_luz;
 glm::vec3 camera_position = {0.0f, 2.0f, 5.0f};
 glm::vec3 camera_target = {0.0f, 0.0f, 0.0f};
+glm::vec3 up_vector = {0.0f, 1.0f, 0.0f};
+
+glm::vec3 eulerRotation = {0.0f, 0.0f, 0.0f};
+glm::mat4 rotationMatrix = glm::mat4(0.0f);
+
+void calculateRotationMatrix(){
+    
+    const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
+                        glm::radians(eulerRotation.x),
+                        glm::vec3(1.0f, 0.0f, 0.0f));
+    const glm::mat4 transformY = glm::rotate(glm::mat4(1.0f),
+                        glm::radians(eulerRotation.y),
+                        glm::vec3(0.0f, 1.0f, 0.0f));
+    const glm::mat4 transformZ = glm::rotate(glm::mat4(1.0f),
+                        glm::radians(eulerRotation.z),
+                        glm::vec3(0.0f, 0.0f, 1.0f));
+
+    // Y * X * Z
+    rotationMatrix = transformY * transformX * transformZ;
+}
 
 void init( ) 
 {
@@ -90,9 +111,8 @@ void DrawObj(double size)
    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
    glColor3f(1,0,0);
-   glRotatef(45, 0.5,0.5,0);
-   //glutSolidCube(size);
-   glutSolidSphere(size, 20, 10);
+   glutSolidCube(size);
+   //glutSolidSphere(size, 20, 10);
 }
 
 void display(void)
@@ -106,15 +126,17 @@ void display(void)
 
     gluLookAt(  camera_position.x, camera_position.y, camera_position.z, 
                 camera_target.x, camera_target.y, camera_target.z,
-                0,1,0);
+                up_vector.x, up_vector.y, up_vector.z);
    
     GLfloat light_position[] = { 0.0f, 2.0f, 10.0, 1.0 };
     glPushMatrix();
-    glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-    glTranslatef(x_luz, y_luz, 0.0f);
-    // std::cout << "Luz em (" << x_luz << ", " << y_luz << ")" << std::endl;
-    glLightfv( GL_LIGHT0, GL_POSITION, light_position);
+        glTranslatef(x_luz, y_luz, 0.0f);
+        // std::cout << "Luz em (" << x_luz << ", " << y_luz << ")" << std::endl;
+        glLightfv( GL_LIGHT0, GL_POSITION, light_position);
     glPopMatrix();
+
+    calculateRotationMatrix();
+    glMultMatrixf(&rotationMatrix[0][0]);
 
     DrawAxes(1.5);
 
@@ -152,6 +174,24 @@ void idle(void){
     } else if (keyStatus[(int) 'e']){
         camera_position.z -= 0.01f;
         camera_target.z -= 0.01f;
+    }
+
+    if(keyStatus[(int) 'i']){
+        eulerRotation.x += 0.2f;
+    } else if (keyStatus[(int) 'k']){
+        eulerRotation.x -= 0.2f;
+    }
+
+    if(keyStatus[(int) 'j']){
+        eulerRotation.y += 0.2f;
+    } else if(keyStatus[(int) 'l']){
+        eulerRotation.y -= 0.2f;
+    }
+
+    if(keyStatus[(int) 'u']){
+        eulerRotation.z += 0.2f;
+    } else if (keyStatus[(int) 'o']){
+        eulerRotation.z -= 0.2f;
     }
 }
 
