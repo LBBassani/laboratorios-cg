@@ -13,7 +13,6 @@
 #define windowSize 250
 
 int keyStatus[NUM_TECLAS_ASCII + 2 + 2 + 2];
-float x_luz, y_luz;
 glm::vec3 camera_position = {0.0f, 2.0f, 5.0f};
 glm::vec3 camera_target = {0.0f, 0.0f, 0.0f};
 glm::vec3 up_vector = {0.0f, 1.0f, 0.0f};
@@ -21,6 +20,7 @@ glm::vec3 up_vector = {0.0f, 1.0f, 0.0f};
 glm::vec3 eulerRotation = {0.0f, 0.0f, 0.0f};
 glm::mat4 rotationMatrix = glm::mat4(0.0f);
 
+// Calcula a matriz de rotação da cena
 void calculateRotationMatrix(){
     
     const glm::mat4 transformX = glm::rotate(glm::mat4(1.0f),
@@ -41,7 +41,7 @@ void init( )
 {
     glClearColor (0.0, 0.0, 0.0, 0.0);
     glShadeModel (GL_FLAT);
-//    glShadeModel (GL_SMOOTH);
+    // glShadeModel (GL_SMOOTH);
     glEnable(GL_CULL_FACE);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -53,8 +53,7 @@ void init( )
     gluPerspective (50, 
             (GLfloat)windowSize/(GLfloat)windowSize, 
                     1, 15);
-//    glOrtho (-3, 3, -3*(GLfloat)windowSize/(GLfloat)windowSize,
-//       3*(GLfloat)windowSize/(GLfloat)windowSize, 1.0, 15.0);   
+    // glOrtho (-3, 3, -3*(GLfloat)windowSize/(GLfloat)windowSize, 3*(GLfloat)windowSize/(GLfloat)windowSize, 1.0, 15.0);   
 }
 void DrawAxes(double size)
 {
@@ -101,18 +100,21 @@ void DrawAxes(double size)
 
 void DrawObj(double size)
 {
-   GLfloat materialEmission[] = { 0.00, 0.00, 0.00, 1.0};
-   GLfloat materialColor[] = { 1.0, 0.0, 1.0, 0.5};
-   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0};
-   GLfloat mat_shininess[] = { 128 };
-   glMaterialfv(GL_FRONT, GL_EMISSION, materialEmission);
-   glMaterialfv(GL_FRONT, GL_AMBIENT, materialColor);
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, materialColor);
-   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-   glColor3f(1,0,0);
-   glutSolidCube(size);
-   //glutSolidSphere(size, 20, 10);
+    GLfloat materialEmission[] = { 0.00, 0.00, 0.00, 1.0};
+    GLfloat materialColor[] = { 1.0, 0.0, 1.0, 0.5};
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0};
+    GLfloat mat_shininess[] = { 128 };
+    glMaterialfv(GL_FRONT, GL_EMISSION, materialEmission);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, materialColor);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, materialColor);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+    glColor3f(1,0,0);
+    #if defined CUBE
+        glutSolidCube(size);
+    #elif defined SPHERE
+        glutSolidSphere(size, 20, 10);
+    #endif
 }
 
 void display(void)
@@ -130,26 +132,24 @@ void display(void)
    
     GLfloat light_position[] = { 0.0f, 2.0f, 10.0, 1.0 };
     glPushMatrix();
-        glTranslatef(x_luz, y_luz, 0.0f);
-        // std::cout << "Luz em (" << x_luz << ", " << y_luz << ")" << std::endl;
+        glTranslatef(keyStatus[MOUSE_X_COORD], keyStatus[MOUSE_Y_COORD], 0.0f); // Posiciona a luz de acordo com a posição do mouse
         glLightfv( GL_LIGHT0, GL_POSITION, light_position);
     glPopMatrix();
 
     calculateRotationMatrix();
-    glMultMatrixf(&rotationMatrix[0][0]);
+    glMultMatrixf(&rotationMatrix[0][0]); // Aplica a rotação da cena
 
-    DrawAxes(1.5);
+    DrawAxes(1.5);  // Desenha os eixos
 
-    DrawObj(1.0);
+    DrawObj(1.0);   // Desenho os objetos
     
     glutSwapBuffers();
     glutPostRedisplay();
 }
 
 void idle(void){
-    x_luz = keyStatus[MOUSE_X_COORD];
-    y_luz = keyStatus[MOUSE_Y_COORD];
 
+    // Move a câmera pra cima ou para baixo
     if(keyStatus[(int) 'w']) {
         camera_position.y += 0.01f;
         camera_target.y += 0.01f;
@@ -159,6 +159,7 @@ void idle(void){
         camera_target.y -= 0.01f;
     }
 
+    // Move a câmera pros lados
     if(keyStatus[(int) 'a']) {
         camera_position.x -= 0.01f;
         camera_target.x -= 0.01f;
@@ -168,6 +169,7 @@ void idle(void){
         camera_target.x += 0.01f;
     }
 
+    // Move a câmera para frente ou para trás
     if(keyStatus[(int) 'q']){
         camera_position.z += 0.01f;
         camera_target.z += 0.01f;
@@ -176,18 +178,21 @@ void idle(void){
         camera_target.z -= 0.01f;
     }
 
+    // Rotaciona a câmera em y
     if(keyStatus[(int) 'i']){
         eulerRotation.x += 0.2f;
     } else if (keyStatus[(int) 'k']){
         eulerRotation.x -= 0.2f;
     }
 
+    // Rotaciona a câmera em x
     if(keyStatus[(int) 'j']){
         eulerRotation.y += 0.2f;
     } else if(keyStatus[(int) 'l']){
         eulerRotation.y -= 0.2f;
     }
 
+    // Rotaciona a câmera em z
     if(keyStatus[(int) 'u']){
         eulerRotation.z += 0.2f;
     } else if (keyStatus[(int) 'o']){
@@ -202,7 +207,7 @@ static void keyPress(unsigned char key, int, int){
     keyStatus[(int) tolower(key)] = 1;
 }
 
-static void keyup(unsigned char key, int x, int y){
+static void keyup(unsigned char key, int, int){
     keyStatus[(int)(tolower(key))] = 0;
 }
 
@@ -228,15 +233,10 @@ static void mouseEvent(int button, int state, int, int){
     }
     #if defined TEST
         // std::cout << button << ", " << state << std::endl;
-        // if(keyStatus[MOUSE_SCROLL_UP]) std::cout << "scroll pra cima!!" << std::endl;
     #endif
 }
 
 static void mouseMove(int x, int y){
-    #if defined TEST
-        // std::cout << "Mouse em (" << instance->keyStatus[MOUSE_X_COORD] << ", " << instance->keyStatus[MOUSE_Y_COORD] << ")" << std::endl;
-    #endif
-
     keyStatus[MOUSE_X_COORD] = x - windowSize/2;
     keyStatus[MOUSE_Y_COORD] = - y + windowSize/2;
     #if defined TEST
