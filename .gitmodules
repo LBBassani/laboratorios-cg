@@ -1,3 +1,6 @@
 [submodule "trabalho-2d"]
 	path = trabalho-2d
 	url = git@github.com:LBBassani/cg-trabalho-2d.git
+[submodule "Third-party-libs/glm"]
+	path = Third-party-libs/glm
+	url = git@github.com:g-truc/glm.git
